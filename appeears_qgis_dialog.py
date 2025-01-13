@@ -42,7 +42,7 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         
         # Set default parameters
         self.api_url = 'https://appeears.earthdatacloud.nasa.gov/api/'
-        self.token = None # 'GDpjCyiQRO1S27Bv95U3s16Jq1in-5w5nsEzyFTxM6w-FdwseulBppX08xYv4GcAf53NWm-wrQfmtXfZcY8UpA'
+        self.token = None 
         self.current_task_id = None
 
         # Set up UI
