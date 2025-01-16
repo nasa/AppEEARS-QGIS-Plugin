@@ -59,7 +59,22 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         self.task_tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.bundle_tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.bundle_tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        
+
+
+        # Password Checkbox
+        self.password_lineEdit.setPlaceholderText("Enter your password")
+        self.show_password_checkBox.toggled.connect(self.toggle_password_visibility)
+
+    def toggle_password_visibility(self, checked):
+        """
+        Toggles password visibility
+        """
+        if checked:
+            self.password_lineEdit.setEchoMode(QtWidgets.QLineEdit.Normal)
+        else:
+            self.password_lineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+
+
     def store_entered_credentials(self):
         """
         Stores lineEdit credentials into the .netrc file.
@@ -163,18 +178,23 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         Selects the currently highlighted row from the task table, and use it to populate the bundle table.
         """
 
-        #TODO Add some logic to limit selection to 'done' (not expired or in progress)
-
         row = self.task_tableWidget.currentRow()
         if row < 0:
             print("No row is currently selected.")
             return
         
-        # Set task_id using hard-coded task-id column
+        # Set task_id and status using hard-coded task-id column
         self.current_task_id = self.task_tableWidget.item(row,3).text()
-        
+        task_status = self.task_tableWidget.item(row, 1).text()
+
         if not self.current_task_id:
             QtWidgets.QMessageBox.warning(self, "Invalid Row","Could not find task.")
+            return
+
+        # Restrict selection only to tasks with status == "DONE" (adjust string as needed)
+        if task_status != "done":
+            QtWidgets.QMessageBox.information(self, "Task Not Done",
+                f"This task is '{task_status}' and cannot be selected.")
             return
 
         # Fetch bundle data from AppEEARS API
