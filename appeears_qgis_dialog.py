@@ -28,21 +28,39 @@ from qgis.core import QgsApplication, QgsAuthManager, QgsAuthMethodConfig, Qgis,
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 
-from .appeears.auth import store_creds_netrc, retrieve_stored_creds, get_appeears_token, NetrcConflictError
-from .appeears.utils import fetch_task_data, fetch_bundle_data, build_file_url, set_gdal_options
+from .appeears import netrc, util
+from .appeears import api
 
 # Load .ui file so that PyQt can populate plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'appeears_qgis_dialog_base.ui'))
 
+
+class Log:
+    """
+    Used for QGIS message logging
+    """
+    def __init__(self, tag):
+        self._tag = tag
+    
+    def _log(self, msg, level):
+        QgsMessageLog.logMessage(msg, tag=self._tag, level=level)
+
+    def info(self, msg):
+        self._log(msg, Qgis.Info)
+
+
 class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """Constructor."""
         super(AppEEARSDialog, self).__init__(parent)
+
+        # data members used in various methods
+        self.log = Log('AppEEARS')
+        self.machine = 'urs.earthdata.nasa.gov'
+        self.api = None
         
         # Set default parameters
-        self.api_url = 'https://appeears.earthdatacloud.nasa.gov/api/'
-        self.token = None 
         self.current_task_id = None
 
         # Set up UI
@@ -60,101 +78,102 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         self.bundle_tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.bundle_tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
-
         # Password Checkbox
         self.password_lineEdit.setPlaceholderText("Enter your password")
         self.show_password_checkBox.toggled.connect(self.toggle_password_visibility)
+
+    def _open_messagebox(self, method_name: str, *args, **kwargs):
+        if (method := getattr(QtWidgets.QMessageBox, method_name, None)) is None:
+            raise ValueError(f'messagebox method {method_name} does not exist')
+        return method(self, *args, **kwargs)
 
     def toggle_password_visibility(self, checked):
         """
         Toggles password visibility
         """
-        if checked:
-            self.password_lineEdit.setEchoMode(QtWidgets.QLineEdit.Normal)
-        else:
-            self.password_lineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
-
+        self.password_lineEdit.setEchoMode(
+            QtWidgets.QLineEdit.Normal if checked else QtWidgets.QLineEdit.Password
+        )
 
     def store_entered_credentials(self):
         """
         Stores lineEdit credentials into the .netrc file.
         """
-        machine = 'urs.earthdata.nasa.gov'
         username = self.username_lineEdit.text().strip()
         password = self.password_lineEdit.text().strip()
 
         # Add to .netrc file
         try:
-            store_creds_netrc(machine, username, password)
-            QtWidgets.QMessageBox.information(self, "Credentials Updated", f"Credentials for '{machine}' stored successfully.")
-        except NetrcConflictError:
+            netrc.store_creds(self.machine, username, password)
+            self._open_messagebox(
+                "information", "Credentials Updated",
+                f"Credentials for '{self.machine}' stored successfully."
+            )
+        except netrc.ConflictError:
             # This means the credentials existed for the given machine
-            reply = QtWidgets.QMessageBox.question(self, "Credentials Exist", f"Credentials for '{machine}' already exist. Overwrite them?",
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+            reply = self._open_messagebox(
+                "question", "Credentials Exist",
+                f"Credentials for '{self.machine}' already exist. Overwrite them?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No
+            )
 
             if reply == QtWidgets.QMessageBox.No:
                 return
-        
+
             try:
-                store_creds_netrc(machine, username, password, force_update=True)
-                QtWidgets.QMessageBox.information(self, "Credentials Updated", f"Credentials for '{machine}' updated successfully.")
-            
+                netrc.store_creds(self.machine, username, password, force_update=True)
+                self._open_messagebox(
+                    "information", "Credentials Updated",
+                    f"Credentials for '{self.machine}' updated successfully."
+                )
             except Exception as e:
-                QtWidgets.QMessageBox.critical(self, "Error", str(e))
+                self._open_messagebox("critical", "Error", str(e))
 
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Error", str(e))
-
-    def get_token(self, refresh=False):
-        """
-        Uses functions from the auth module to get a token or refresh.
-        """
-        machine = 'urs.earthdata.nasa.gov'
-
-        if self.token and not refresh:
-            return self.token
-        
-        username, password = retrieve_stored_creds(machine)
-
-        if not username or not password:
-            QtWidgets.QMessageBox.warning(self, "No Credentials", f"No credentials", f"No credentials found for {machine}. Please enter credentials on the login tab.")
-            return None
-        
-        try: 
-            new_token = get_appeears_token(self.api_url, machine, username, password)
-            self.token = new_token
-            return self.token
-        
-        except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Token Error", str(e))
-            return None
-
+            self._open_messagebox("critical", "Error", str(e))
 
     def refresh_tasks(self):
         """
         Runs upon click of refresh button - gets an appeears token if necessary and populates tasks table.
         """
+
+        username, password = netrc.retrieve_creds(self.machine)
+        if not username or not password:
+            self._open_messagebox(
+                "warning", "No Credentials", f"No credentials",
+                f"No credentials found for {self.machine}. Please enter credentials on the login tab."
+            )
+            return
+
+        if self.api is None:
+            self.api = api.Client((username, password))
+        else:
+            # if the user has changed creds, incorporate them
+            self.api.update_creds((username, password))
+
+        try:
+            data_list = self.api.fetch_task_data()
+        except api.ApiError:
+            self._open_messagebox(
+                "warning", "Error",
+                "Data could not be retrieved from the AppEEARS API. Please check your credentials."
+            )
+            return
         
-        self.token = self.get_token()
-        data_list = fetch_task_data(self.api_url, self.token)
         if not data_list:
-            self.token = self.get_token(refresh=True)
-            data_list = fetch_task_data(self.api_url, self.token)
-            if not data_list:
-                QgsMessageLog.logMessage(message="No data retrieved from AppEEARS API or failed to load data.", tag="AppEEARS", level=Qgis.Info)
-                return
+            self.log.info("No data retrieved from AppEEARS API or failed to load data.")
+            return
         self.populate_table(data_list)
-        QgsMessageLog.logMessage(message="Populated Task Table", tag="AppEEARS", level=Qgis.Info)
+        self.log.info("Populated Task Table")
 
     def populate_table(self, data_list):
         """"
         Populate the tasks table widget from a list of dicts using only
         the desired keys.
         """    
-
-        DESIRED_COLUMNS = ["task_name","status", "task_type", "task_id"]
+        desired_columns = ["task_name", "status", "task_type", "task_id"]
         num_rows = len(data_list)
-        num_cols = len(DESIRED_COLUMNS)
+        num_cols = len(desired_columns)
         
         # Clear existing rows
         self.task_tableWidget.clearContents()
@@ -162,15 +181,14 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         self.task_tableWidget.setColumnCount(num_cols)
 
         # Set Header Labels
-        self.task_tableWidget.setHorizontalHeaderLabels(DESIRED_COLUMNS)
+        self.task_tableWidget.setHorizontalHeaderLabels(desired_columns)
 
         # Populate Table
         for row_index, entry in enumerate(data_list):
-            for col_index, key in enumerate(DESIRED_COLUMNS):
+            for col_index, key in enumerate(desired_columns):
                 value = entry.get(key,"")
                 item = QtWidgets.QTableWidgetItem(str(value))
                 self.task_tableWidget.setItem(row_index, col_index, item)
-        # Resize
         self.task_tableWidget.resizeColumnsToContents()
     
     def select_task(self):
@@ -180,7 +198,7 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
 
         row = self.task_tableWidget.currentRow()
         if row < 0:
-            print("No row is currently selected.")
+            self.log.info("No row is currently selected.")
             return
         
         # Set task_id and status using hard-coded task-id column
@@ -188,20 +206,29 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         task_status = self.task_tableWidget.item(row, 1).text()
 
         if not self.current_task_id:
-            QtWidgets.QMessageBox.warning(self, "Invalid Row","Could not find task.")
+            self._open_messagebox("warning", "Invalid Row", "Could not find task.")
             return
 
         # Restrict selection only to tasks with status == "DONE" (adjust string as needed)
         if task_status != "done":
-            QtWidgets.QMessageBox.information(self, "Task Not Done",
-                f"This task is '{task_status}' and cannot be selected.")
+            self._open_messagebox(
+                "information", "Task Not Done",
+                f"This task is '{task_status}' and cannot be selected."
+            )
             return
 
         # Fetch bundle data from AppEEARS API
-        bundle_data = fetch_bundle_data(self.api_url, self.token, self.current_task_id)
+        try:
+            bundle_data = self.api.fetch_bundle_data(self.current_task_id)
+        except api.ApiError:
+            self._open_messagebox(
+                "warning", "Error",
+                "Data could not be retrieved from the AppEEARS API. Please check your credentials."
+            )
+            return
 
         if not bundle_data:
-            QgsMessageLog.logMessage(message=f"Error fetching bundle data.", tag="AppEEARS", level=Qgis.Info)
+            self.log.info("Error fetching bundle data.")
 
         # Populate Bundle Table
         self.populate_bundle_table(bundle_data)
@@ -211,10 +238,9 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         Populate the tasks table widget from a list of dicts using only
         the desired keys.
         """
-
-        DESIRED_COLUMNS = ["file_name", "file_id", "file_size"]
+        desired_columns = ["file_name", "file_id", "file_size"]
         num_rows = len(bundle_data_list)
-        num_cols = len(DESIRED_COLUMNS)
+        num_cols = len(desired_columns)
         
         # Clear existing rows
         self.bundle_tableWidget.clearContents()
@@ -222,12 +248,12 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         self.bundle_tableWidget.setColumnCount(num_cols)
 
         # Set Header Labels
-        self.bundle_tableWidget.setHorizontalHeaderLabels(DESIRED_COLUMNS)
+        self.bundle_tableWidget.setHorizontalHeaderLabels(desired_columns)
 
         # Populate Table
-        QgsMessageLog.logMessage(message=f"{bundle_data_list[0]}", tag="AppEEARS", level=Qgis.Info)
+        self.log.info(f"{bundle_data_list[0]}")
         for row_index, entry in enumerate(bundle_data_list):
-            for col_index, key in enumerate(DESIRED_COLUMNS):
+            for col_index, key in enumerate(desired_columns):
                 value = entry.get(key,"")
                 if key == "file_name":
                     value = value.split("/")[-1]
@@ -245,7 +271,7 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
         # Retrieve current row
         row = self.bundle_tableWidget.currentRow()
         if row < 0:
-            QgsMessageLog.logMessage(message="No file selected.", tag="AppEEARS", level=Qgis.Info)
+            self.log.info("No file selected.")
             return
 
         # Get ID and Name and Open File
@@ -254,36 +280,34 @@ class AppEEARSDialog(QtWidgets.QDialog, FORM_CLASS):
             file_name = self.bundle_tableWidget.item(row,0).text()
 
             if not file_id:
-                QtWidgets.QMessageBox.warning(self, "Invalid Row","Could not find task.")
+                self._open_messagebox("warning", "Invalid Row", "Could not find task.")
                 return
 
             # Build File URL from selection
-            file_url = build_file_url(self.api_url, self.current_task_id, file_id, file_name)
+            file_url = self.api.build_file_url(self.current_task_id, file_id, file_name)
             
             # Handle non-tif cases
             if file_url.split('.')[-1] != 'tif':
-                self.not_supported_error()
+                self._open_messagebox(
+                    "critical", "Error", (
+                        "Currently this plugin shows all AppEEARS requests and output filetypes, "
+                        "but only supports opening cloud-optimized geotiff files from area sample requests."
+                    )
+                )
                 return
 
             # Set Necessary GDAL Options
-            set_gdal_options(self.token)
-            QgsMessageLog.logMessage(message="Required GDAL options set.", tag="AppEEARS", level=Qgis.Info)
+            util.set_gdal_options(self.api.token)
+            self.log.info("Required GDAL options set.")
         
             # Load data into memory
-            QgsMessageLog.logMessage(message=f"Opening Data from source:  {file_url}", tag="AppEEARS", level=Qgis.Info)
+            self.log.info(f"Opening Data from source: {file_url}")
             raster_layer = QgsRasterLayer(file_url, file_name)
 
             # Add Layer to QGIS Project
             QgsProject.instance().addMapLayer(raster_layer)
-            QgsMessageLog.logMessage(message=f"Added raster layer: {file_name}", tag="AppEEARS", level=Qgis.Info)
+            self.log.info(f"Added raster layer: {file_name}")
 
         except Exception as e:
-            QgsMessageLog.logMessage(message=f"Error loading COG. {e}", tag="AppEEARS", level=Qgis.Info)
+            self.log.info(f"Error loading COG. {e}")
             return None     
-
-    def not_supported_error(self):
-        """
-        Displays a QMessageBox with an 'Error' for unsupported operations within QGS.
-        Currently this plugin only supports AppEEARS Area requests with cloud-optimized geotiff outputs.
-        """
-        QtWidgets.QMessageBox.critical(self, "Error", "Currently this plugin shows all AppEEARS requests and output filetypes, but only supports opening cloud-optimized geotiff files from area sample requests.")
