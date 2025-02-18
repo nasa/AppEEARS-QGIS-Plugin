@@ -12,13 +12,13 @@ This QGIS plugin allows users to browse previously submitted requests from NASA'
 
 Until the plugin is available on the QGIS plugin repository, you can install it from source. Follow these steps:
 
-1. Navigate to your QGIS Plugin directory. This is usually located at `C:\Users\<username>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins` on Windows.
+1. Navigate to your QGIS plugin directory. This is usually located at `C:\Users\<username>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins` on Windows.
 2. Clone or download and unzip the repository to this directory. 
 3. Add the plugin to QGIS by going to `Plugins` > `Manage and Install Plugins...` > `Installed` and clicking the `Add` button.
 
 ## Use
 
-1. Submit an Area Sample Request to [AppEEARS](https://appeears.earthdatacloud.nasa.gov/) and request cloud-optimized geotiff format for the outputs. See the [AppEEARS documentation](https://appeears.earthdatacloud.nasa.gov/help) for more information on how to do this.
+1. Submit an area sample request to [AppEEARS](https://appeears.earthdatacloud.nasa.gov/) and request cloud-optimized geotiff format for the outputs. See the [AppEEARS documentation](https://appeears.earthdatacloud.nasa.gov/help) for more information on how to do this.
 2. Enter [Earthdata Login Account](https://urs.earthdata.nasa.gov/home) credentials in the login tab the first time the plugin is used. This will save them in a .netrc file in the user's home directory.
 3. Browse previously submitted AppEEARS requests in the `Requests` tab by pressing the refresh button at the top. This will populate a table showing the task name, status, task type, and task id.
 4. Click on a row in the table to select it, and press the `Select` button to open the task bundle. This will show a table with all of the output files associated with the selected request. The table includes file name, file id and file size.
