@@ -130,7 +130,16 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
             self.api.update_creds((username, password))
 
         try:
-            data_list = self.api.fetch_task_data()
+            '''
+            TODO - users could have many thousands of tasks, so need
+            to account for that such as:
+                - Set a limit on the last number of tasks that will be retrieved.
+                It could be a text box that the user could provide that value (and be defaulted, like 100).
+                - Modify the GUI to provide for pagination.  I'm don't see a native pagination
+                'PyQt' widget, so we'd have to build something.
+            '''
+            data_list = list(self.api.fetch_task_data())
+            LOGGER.info(f'found {len(data_list)} tasks for user')
         except api.ApiError:
             self._open_messagebox(
                 "warning", "Error",

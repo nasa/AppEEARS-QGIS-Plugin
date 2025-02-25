@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
 import requests
+from datetime import datetime, timezone
+from typing import Optional, Union
 
 
 class ApiError(Exception):
@@ -13,6 +14,13 @@ class LoginError(Exception):
     """
     When bad creds are used in call to login endpoint
     """
+
+
+class StopPagination(Exception):
+    """
+    A sentinel for when no more pagination is necessary
+    """
+    pass
 
 
 class Client:
@@ -52,18 +60,39 @@ class Client:
     def _get_auth_header(self) -> dict:
         return {"Authorization": f"Bearer {self.token}"}
 
-    def fetch_task_data(self) -> dict:
+    def fetch_task_data(self, limit: Optional[Union[int, None]] = None) -> dict:
         """
-        Uses the AppEEARS token to retrieve task info from the API endpoint
+        Uses the AppEEARS token to retrieve task info from the API endpoint.
+        Paginates to retrieve all applicable results.
+
+        Args:
+            limit (None or int): if int, only a maximum of that
+                many tasks are returned.
+
+        Yields:
+            task (dict): all info for the task
         """
         try:
-            response = requests.get(
-                f'{self._url}task', headers=self._get_auth_header()
-            )
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return None
+            limit_per_req, offset, count = 1000, 0, 0
+            while True:
+                response = requests.get(
+                    f'{self._url}task?limit={limit_per_req}&offset={offset}',
+                    headers=self._get_auth_header()
+                )
+                if response.status_code == 200:
+                    tasks = response.json()
+                    for task in tasks:
+                        yield task
+                        count += 1
+                        if isinstance(limit, int) and count >= limit:
+                            # return limit reached
+                            raise StopPagination
+                    if len(tasks) < limit_per_req:
+                        # end of tasks
+                        raise StopPagination
+                    offset += 1
+        except StopPagination:
+            pass
         except LoginError as e:
             raise ApiError(str(e)) from e
         except Exception as e:
