@@ -1,3 +1,4 @@
+import os
 from osgeo import gdal
 
 
@@ -13,3 +14,13 @@ def set_gdal_options(token: str, opts: dict = {}):
 
     for key, value in all_opts.items():
         gdal.SetConfigOption(key, value)
+
+
+def get_project_root_path():
+    return os.path.join(
+        *os.path.dirname(__file__).split(os.sep)[0:-1]
+    )
+
+
+def get_path_from_root(*parts):
+    return os.path.join(get_project_root_path(), *parts)

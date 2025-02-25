@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>AppEEARS QGIS</string>
+   <string>AppEEARS</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -96,25 +96,31 @@
        <x>10</x>
        <y>10</y>
        <width>431</width>
-       <height>141</height>
+       <height>180</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="auth_gridLayout">
-      <item row="2" column="2">
+
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="login_intro">
+       </widget>
+      </item>
+      
+      <item row="3" column="1">
        <widget class="QPushButton" name="save_credentials_pushButton">
         <property name="text">
          <string>Save Credentials</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="username_label">
         <property name="text">
          <string>Username</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QLineEdit" name="password_lineEdit">
         <property name="inputMethodHints">
          <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
@@ -124,21 +130,21 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="password_label">
         <property name="text">
          <string>Password</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="2">
        <widget class="QCheckBox" name="show_password_checkBox">
         <property name="text">
          <string>Show Password</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLineEdit" name="username_lineEdit"/>
       </item>
      </layout>

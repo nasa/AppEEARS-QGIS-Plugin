@@ -1,7 +1,9 @@
 # python internals
 *.ipynb_checkpoints
 *__pycache__*
+*.pytest_cache
 
 # local development
 /_ignore
 /.vscode/
+**/.coverage
