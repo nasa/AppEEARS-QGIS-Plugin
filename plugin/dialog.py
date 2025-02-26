@@ -41,6 +41,14 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
             'exist,&nbsp;it will be created.'
         )
 
+        # intro section of the requests tab
+        self.requests_intro.setWordWrap(True)
+        self.requests_intro.setContentsMargins(0, 0, 0, 15)
+        self.requests_intro.setText(
+            'Cloud Optimized GeoTIFF (COG) files from area samples can be loaded as '
+            'layers.<br/>Below you can view your samples and select files from them.'
+        )
+
         # Connect Signals
         self.save_credentials_pushButton.clicked.connect(self.store_entered_credentials)
         self.refresh_pushButton.clicked.connect(self.refresh_tasks)

@@ -43,6 +43,10 @@
     </attribute>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
+       <widget class="QLabel" name="requests_intro">
+       </widget>
+     </item>
+     <item row="1" column="0">
       <layout class="QGridLayout" name="task_gridLayout">
        <property name="sizeConstraint">
         <enum>QLayout::SetFixedSize</enum>
@@ -50,35 +54,35 @@
        <item row="0" column="0">
         <widget class="QPushButton" name="refresh_pushButton">
          <property name="text">
-          <string>Refresh</string>
+          <string>Refresh Samples</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QTableWidget" name="task_tableWidget"/>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <layout class="QGridLayout" name="bundle_gridLayout">
        <item row="0" column="0">
         <widget class="QPushButton" name="select_pushButton">
          <property name="text">
-          <string>Select</string>
+          <string>Select Sample</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QTableWidget" name="bundle_tableWidget"/>
      </item>
-     <item row="4" column="0">
+     <item row="5" column="0">
       <layout class="QGridLayout" name="load_button_gridLayout">
        <item row="1" column="0">
         <widget class="QPushButton" name="load_data_pushButton">
          <property name="text">
-          <string>Load Data</string>
+          <string>Load File</string>
          </property>
         </widget>
        </item>
@@ -100,12 +104,10 @@
       </rect>
      </property>
      <layout class="QGridLayout" name="auth_gridLayout">
-
       <item row="0" column="0" colspan="3">
        <widget class="QLabel" name="login_intro">
        </widget>
       </item>
-      
       <item row="3" column="1">
        <widget class="QPushButton" name="save_credentials_pushButton">
         <property name="text">
