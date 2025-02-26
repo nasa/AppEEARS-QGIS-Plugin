@@ -110,6 +110,40 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
         except Exception as e:
             self._open_messagebox("critical", "Error", str(e))
 
+    @staticmethod
+    def _filter_tasks(tasks: list) -> list:
+        """
+        Gets only applicable tasks - ones that are area and have COG output.
+
+        Args:
+            tasks (an iterable - list or generator): the task data
+                for the user.
+
+        Returns:
+            (list): each a task (dict)
+        """
+        return [
+            t for t in tasks
+            if t['task_type'] == 'area' and
+            t['params']['output']['format']['type'] == 'geotiff'
+        ]
+
+    @staticmethod
+    def _filter_bundle_files(files: list) -> list:
+        """
+        Gets only applicable bundle files - ones that are COGs.
+
+        Args:
+            files (an iterable - list or generator): task bundle fies
+
+        Returns:
+            (list): each a file (dict)
+        """
+        return [
+            f for f in files
+            if f['file_type'] == 'tif'
+        ]
+
     def refresh_tasks(self):
         """
         Runs upon click of refresh button - gets an appeears token if necessary and populates tasks table.
@@ -138,8 +172,9 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
                 - Modify the GUI to provide for pagination.  I'm don't see a native pagination
                 'PyQt' widget, so we'd have to build something.
             '''
-            data_list = list(self.api.fetch_task_data())
-            LOGGER.info(f'found {len(data_list)} tasks for user')
+            # get all the applicable tasks for the user
+            data_list = Dialog._filter_tasks(self.api.fetch_task_data())
+            LOGGER.info(f'found {len(data_list)} applicable tasks for user')
         except api.ApiError:
             self._open_messagebox(
                 "warning", "Error",
@@ -206,7 +241,13 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
 
         # Fetch bundle data from AppEEARS API
         try:
-            bundle_data = self.api.fetch_bundle_data(self.current_task_id)
+            bundle_data = Dialog._filter_bundle_files(
+                self.api.fetch_bundle_data(self.current_task_id)
+            )
+            LOGGER.info(
+                f'found {len(bundle_data)} applicable bundle files for '
+                f'task id {self.current_task_id}'
+            )
         except api.ApiError:
             self._open_messagebox(
                 "warning", "Error",
@@ -238,7 +279,6 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
         self.bundle_tableWidget.setHorizontalHeaderLabels(desired_columns)
 
         # Populate Table
-        LOGGER.info(f"{bundle_data_list[0]}")
         for row_index, entry in enumerate(bundle_data_list):
             for col_index, key in enumerate(desired_columns):
                 value = entry.get(key,"")

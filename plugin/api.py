@@ -60,23 +60,24 @@ class Client:
     def _get_auth_header(self) -> dict:
         return {"Authorization": f"Bearer {self.token}"}
 
-    def fetch_task_data(self, limit: Optional[Union[int, None]] = None) -> dict:
+    def fetch_task_data(self, max: Optional[Union[int, None]] = None) -> dict:
         """
         Uses the AppEEARS token to retrieve task info from the API endpoint.
         Paginates to retrieve all applicable results.
 
         Args:
-            limit (None or int): if int, only a maximum of that
+            max (None or int): if int, only a maximum of that
                 many tasks are returned.
 
         Yields:
             task (dict): all info for the task
         """
+        limit, has_max = 1000, isinstance(max, int)
+        offset, count = 0, 0
         try:
-            limit_per_req, offset, count = 1000, 0, 0
             while True:
                 response = requests.get(
-                    f'{self._url}task?limit={limit_per_req}&offset={offset}',
+                    f'{self._url}task?limit={limit}&offset={offset}',
                     headers=self._get_auth_header()
                 )
                 if response.status_code == 200:
@@ -84,10 +85,10 @@ class Client:
                     for task in tasks:
                         yield task
                         count += 1
-                        if isinstance(limit, int) and count >= limit:
+                        if has_max and count >= max:
                             # return limit reached
                             raise StopPagination
-                    if len(tasks) < limit_per_req:
+                    if len(tasks) < limit:
                         # end of tasks
                         raise StopPagination
                     offset += 1
