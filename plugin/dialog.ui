@@ -54,7 +54,7 @@
        <item row="0" column="0">
         <widget class="QPushButton" name="refresh_pushButton">
          <property name="text">
-          <string>Refresh Samples</string>
+          <string>Refresh Tasks</string>
          </property>
         </widget>
        </item>
@@ -68,7 +68,7 @@
        <item row="0" column="0">
         <widget class="QPushButton" name="select_pushButton">
          <property name="text">
-          <string>Select Sample</string>
+          <string>Select Task</string>
          </property>
         </widget>
        </item>

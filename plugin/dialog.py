@@ -45,8 +45,8 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
         self.requests_intro.setWordWrap(True)
         self.requests_intro.setContentsMargins(0, 0, 0, 15)
         self.requests_intro.setText(
-            'Cloud Optimized GeoTIFF (COG) files from area samples can be loaded as '
-            'layers.<br/>Below you can view your samples and select files from them.'
+            'Cloud Optimized GeoTIFF (COG) files from area tasks can be loaded as '
+            'layers.<br/>Below you can view your tasks and select files from them.'
         )
 
         # Connect Signals
@@ -326,7 +326,7 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
                 self._open_messagebox(
                     "critical", "Error", (
                         "Currently this plugin shows all AppEEARS requests and output filetypes, "
-                        "but only supports opening cloud-optimized geotiff files from area sample requests."
+                        "but only supports opening cloud-optimized geotiff files from area task requests."
                     )
                 )
                 return

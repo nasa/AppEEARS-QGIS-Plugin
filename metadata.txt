@@ -1,7 +1,7 @@
 [general]
 name=AppEEARS
 description=AppEEARS plugin for QGIS
-about=This plugin allows users to load Cloud Optimized GeoTiffs (COGs) directly into QGIS from Area Sample Requests made to AppEEARS. Note that this plugin modifies QGIS environment variables when in use, but those values are reverted when QGIS is relaunched.
+about=This plugin allows users view area requests made to AppEEARS and load cloud-optmized geotiffs (COGs) outputs directly into QGIS. Note that this plugin requires GDAL >= 3.7 because it is dependent on configuration options introduced in that version to send authentication info via a bearer token.
 version=0.1
 qgisMinimumVersion=3.0
 tags=python,AppEEARS
