@@ -1,4 +1,5 @@
 import os
+import pathlib
 from osgeo import gdal
 
 
@@ -17,9 +18,7 @@ def set_gdal_options(token: str, opts: dict = {}):
 
 
 def get_project_root_path():
-    return os.path.join(
-        *os.path.dirname(__file__).split(os.sep)[0:-1]
-    )
+    return str(pathlib.Path(__file__).parent.parent.absolute())
 
 
 def get_path_from_root(*parts):
