@@ -16,6 +16,11 @@ class LoginError(Exception):
     """
 
 
+class DataRetrivalError(Exception):
+    """
+    When data cannot be obtained or parsed
+    """
+
 class StopPagination(Exception):
     """
     A sentinel for when no more pagination is necessary
@@ -97,7 +102,7 @@ class Client:
         except LoginError as e:
             raise ApiError(str(e)) from e
         except Exception as e:
-            return None
+            raise DataRetrivalError(str(e)) from e
 
     def fetch_bundle_data(self, task_id: str):
         """
@@ -114,7 +119,7 @@ class Client:
         except LoginError as e:
             raise ApiError(str(e)) from e
         except Exception as e:
-            return None
+            raise DataRetrivalError(str(e)) from e
 
     def build_file_url(self, task_id: str, file_id: str, file_name: str) -> str:
         """
