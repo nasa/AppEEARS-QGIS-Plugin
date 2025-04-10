@@ -311,8 +311,8 @@ class Dialog(QtWidgets.QDialog, FORM_CLASS):
 
         # Get ID and Name and Open File
         try: 
-            file_id = self.bundle_tableWidget.item(row,1).text()
-            file_name = self.bundle_tableWidget.item(row,0).text()
+            file_id = self.bundle_tableWidget.item(row, 1).text()
+            file_name = self.bundle_tableWidget.item(row, 0).text()
 
             if not file_id:
                 self._open_messagebox("warning", "Invalid Row", "Could not find task.")

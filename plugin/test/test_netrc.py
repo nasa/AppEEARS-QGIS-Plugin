@@ -65,10 +65,17 @@ class ModuleTest(unittest.TestCase):
         expected_open_2.__exit__ = Mock()
         mock_open.side_effect = [expected_open_1, expected_open_2]
         expected_nrc = Mock()
-        expected_hosts = {}
+        expected_hosts = {
+            'another_machine': ('u', 'a', 'p')
+        }
         expected_nrc.hosts = expected_hosts
         mock_parse_netrc.return_value = expected_nrc
-        expected_write_args_list = [
+        expected_write_args_list_1 = [
+            f'machine another_machine\n  login {expected_hosts["another_machine"][0]}\n',
+            f'  account {expected_hosts["another_machine"][1]}\n',
+            f'  password {expected_hosts["another_machine"][2]}\n'
+        ]
+        expected_write_args_list_2 = [
             f'machine {expected_machine}\n  login {expected_user}\n',
             f'  password {expected_pw}\n'
         ]
@@ -81,8 +88,10 @@ class ModuleTest(unittest.TestCase):
         mock_chmod.assert_called_with(expected_file_path, 0o600)
         mock_parse_netrc.assert_called_with(expected_file_path)
         mock_open.call_args_list[1].assert_called_with(expected_file_path, 'w')
-        for i, c in enumerate(expected_open_2_fh.write.call_args_list):
-            c.assert_called_with(expected_write_args_list[i])
+        for i, c in enumerate(expected_open_2_fh.write.call_args_list[0:3]):
+            c.assert_called_with(expected_write_args_list_1[i])
+        for i, c in enumerate(expected_open_2_fh.write.call_args_list[3:]):
+            c.assert_called_with(expected_write_args_list_2[i])
 
     @patch('os.path.exists')
     @patch(f'{MODULE_PATH}._parse_netrc')
