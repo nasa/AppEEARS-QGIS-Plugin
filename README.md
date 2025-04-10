@@ -22,7 +22,11 @@ Until the plugin is available on the QGIS plugin repository, you can install it 
 2. Enter [Earthdata Login Account](https://urs.earthdata.nasa.gov/home) credentials in the login tab the first time the plugin is used. This will save them in a .netrc file in the user's home directory.
 3. Browse previously submitted AppEEARS requests in the `Requests` tab by pressing the refresh button at the top. This will populate a table showing the task name, status, task type, and task id.
 4. Click on a row in the table to select it, and press the `Select` button to open the task bundle. This will show a table with all of the output files associated with the selected request. The table includes file name, file id and file size.
-5. Click on a row containing a file name ending in .tif to select it, then press the `Load Data` button to add the file as a layer in QGIS. 
+5. Click on a row containing a file name ending in .tif to select it, then press the `Load Data` button to add the file as a layer in QGIS.
+
+## Development
+
+Aspects relevant to maintainers for development purposes can be found in [this document](doc/development.md).
 
 ## Contact Info
 
