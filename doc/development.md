@@ -126,6 +126,18 @@ plugin/util.py                  12      0   100%
 TOTAL                          865    138    84%
 ```
 
+Coverage HTML files are written, and can be viewed in a browser at:
+
+`file://{abspath_to_project_root}/cover/index.html`
+
+e.g.
+`file:///Users/jckoch/dev/appeears_qgis_plugin/cover/index.html`
+
+<img
+  src="assets/coverage-index-example.png"
+  alt="Coverage Index Report Example"
+/>
+
 You can also manually set an env var that represents the absolute path to the Python binary, then leverage it with `pytest` as necessary.
 
 ```bash
