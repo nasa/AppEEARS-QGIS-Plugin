@@ -4,6 +4,9 @@
 *.pytest_cache
 
 # local development
+.DS_store
 /_ignore
 /.vscode/
 **/.coverage
+/cover
+.devcontainer/devcontainer.json
