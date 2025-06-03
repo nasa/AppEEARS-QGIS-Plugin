@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/appeears_qgis" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>
