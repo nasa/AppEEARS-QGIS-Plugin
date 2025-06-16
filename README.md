@@ -12,7 +12,7 @@ Please visit the [User Guide](doc/user_guide.md) for detailed installation instr
 
 ## Development
 
-Aspects relevant to maintainers for development purposes can be found in [this document](doc/development.md).
+Aspects relevant to maintainers for development purposes can be found in the [development markdown document](doc/development.md). This document includes description of repository structure and information for software developers to help maintain the project.
 
 ## Contact Info
 

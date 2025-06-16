@@ -1,8 +1,10 @@
 # AppEEARS QGIS Plugin User Guide
 
-This document details how to install and get started using the [AppEEARS QGIS Plugin]().
+The [AppEEARS QGIS Plugin](https://github.com/nasa/AppEEARS-QGIS-Plugin) allows users to browse previously submitted requests from NASA's [Application for Extracting and Exploring Analysis Ready Samples (AppEEARS)](https://appeears.earthdatacloud.nasa.gov/) and load the output files directly into QGIS. This plugin currently only supports opening area sample requests with [cloud-optimized geotiff](https://cogeo.org/) formatted outputs.
 
-## Installation
+This document details how to install and get started using the [AppEEARS QGIS Plugin](https://github.com/nasa/AppEEARS-QGIS-Plugin).
+
+## Installing the Plugin
 
 Until the plugin is available from the official [QGIS Plugin List](https://plugins.qgis.org/plugins/), you can install it from source. Follow these steps:
 
@@ -32,7 +34,7 @@ Until the plugin is available from the official [QGIS Plugin List](https://plugi
   width="750"
 />
 
-## Use
+## Using the Plugin
 
 1. Submit an area sample request to [AppEEARS](https://appeears.earthdatacloud.nasa.gov/) with cloud-optimized geotiff format selected for the outputs. We've included an example area request, `qgis-plugin-example-request.json` in the `appeears_qgis_plugin/assets` directory that can be uploaded and submitted on the [Extract Area Sample Page](https://appeears.earthdatacloud.nasa.gov/task/area). See the [AppEEARS documentation](https://appeears.earthdatacloud.nasa.gov/help) for more information on how to do this.
 
@@ -71,6 +73,14 @@ Until the plugin is available from the official [QGIS Plugin List](https://plugi
 <img
   src="assets/load-file.png"
   alt="Load File"
+  width="750"
+/>
+
+6. Now you should see the loaded geotiff. This might take a while if your connection is slow.
+
+<img
+  src="assets/example-imagery.png"
+  alt="Example Imagery"
   width="750"
 />
 
