@@ -8,7 +8,7 @@ This document details how to install and get started using the [AppEEARS QGIS Pl
 
 Until the plugin is available from the official [QGIS Plugin List](https://plugins.qgis.org/plugins/), you can install it from source. Follow these steps:
 
-1. Make sure QGIS is closed and navigate to your QGIS plugin directory. This is usually located at `C:\Users\<username>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins` on Windows. The `AppData` directory is hidden by default, so you may have to show hidden files when viewing `C:\Users\<username>` in the file explorer.
+1. Locate your QGIS plugin directory: launch QGIS and go to `Settings` > `User Profiles` > `Open Active Profile Folder`. This opens the profile folder in your file explorer or Finder — from there, navigate into `python` > `plugins`. This works the same way on Windows, macOS, and Linux. Once you've found it, close QGIS before continuing to the next step.
 
 2. Clone this repository to the `plugins` directory or download to the `plugins` directory then unzip using extract all. 
 
