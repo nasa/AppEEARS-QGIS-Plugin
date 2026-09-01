@@ -4,7 +4,7 @@ This QGIS plugin allows users to browse previously submitted requests from NASA'
 
 ## Requirements
 - [NASA Earthdata Login Account](https://urs.earthdata.nasa.gov/home)
-- [QGIS >= 3.32](https://qgis.org/) including [GDAL](https://gdal.org/en/stable/) version 3.7 or higher. Currently this means the plugin only works on **Windows**.
+- [QGIS >= 3.44](https://qgis.org/) including [GDAL](https://gdal.org/en/stable/) version 3.7 or higher.
 
 ## Installation and Use
 
