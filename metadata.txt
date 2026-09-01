@@ -2,18 +2,18 @@
 
 [general]
 name=AppEEARS
-qgisMinimumVersion=3.32
+qgisMinimumVersion=3.44
 description=AppEEARS plugin allows users to load AppEEARS cloud-optimized geotiff outputs directly into QGIS.
-version=1.0
+version=1.0.0
 author=NASA Earthdata LPDAAC
 email=lpdaac@usgs.gov
 
 about=
     This plugin allows users to browse area requests made to AppEEARS and directly load cloud-optimized geotiff outputs. 
     
-    Disclaimer: Plugin may not work on MacOS. This plugin requires GDAL >= 3.7 because it is dependent on bearer token authentication configuration options.
+    This plugin requires GDAL >= 3.7 because it is dependent on bearer token authentication configuration options.
 
-homepage=https://github.com/nasa/AppEEARS-QGIS-Plugin/README.made
+homepage=https://github.com/nasa/AppEEARS-QGIS-Plugin
 tracker=https://github.com/nasa/AppEEARS-QGIS-Plugin/issues
 repository=https://github.com/nasa/AppEEARS-QGIS-Plugin
 
@@ -26,7 +26,6 @@ changelog =
 tags=AppEEARS, remote sensing, MODIS, Landsat, HLS, ECOSTRESS, LPDAAC, NASA
 icon=assets/icon.png
 experimental=False
-category=Plugins
 hasProcessingProvider=no
 
 
