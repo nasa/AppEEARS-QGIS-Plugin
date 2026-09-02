@@ -90,7 +90,20 @@ On MacOS, the path to the binary might be:
 
 `/Applications/QGIS.app/Contents/MacOS/bin/python3.9`
 
-The Unix shell script `run_unit_tests.sh`, at the project root, can be used to execute the unit tests, including coverage.  It supports one argument, which is the absolute path to the Python interpreter.
+On Windows, you need the QGIS-provided wrapper script rather than the raw interpreter. Calling
+`bin\python.exe` directly will fail to even start (it can't locate its own standard library
+without the environment variables the wrapper sets up). The wrapper lives alongside it:
+
+`C:\Program Files\QGIS <version>\bin\python-qgis-ltr.bat` (or `python-qgis.bat` for a non-LTR release)
+
+The QGIS-bundled Python environment doesn't include `pytest`/`coverage` by default, so install them
+into it once:
+
+```bash
+$ "C:\Program Files\QGIS <version>\bin\python-qgis-ltr.bat" -m pip install pytest coverage
+```
+
+The Unix shell script `run_unit_tests.sh`, at the project root, can be used to execute the unit tests, including coverage.  It supports one argument, which is the absolute path to the Python interpreter. Quote it if the path contains spaces (the default Windows install path always does):
 
 ```bash
 $ ./run_unit_tests /path/to/QGIS/python
@@ -125,6 +138,20 @@ plugin/util.py                  12      0   100%
 ----------------------------------------------------------
 TOTAL                          865    138    84%
 ```
+
+### A note on the repo's directory name
+
+`run_unit_tests.sh` invokes pytest with `--pyargs plugin.test` rather than a plain file path. This is
+deliberate: pytest normally resolves test files by walking the directory tree up from the test file,
+and since this project's root `__init__.py` (required by QGIS) sits at the top of that walk, pytest
+needs to turn the repo's folder name into a valid Python identifier. If your local clone is named with
+hyphens, e.g. the default `AppEEARS-QGIS-Plugin` from `git clone`, that fails with a confusing
+`ImportError: attempted relative import with no known parent package` pointing at the plugin's entry
+point. `--pyargs` sidesteps this for the script's own invocation by importing tests as a dotted module
+path (`plugin.test...`) instead of a filesystem path.
+
+This only covers invocations through `run_unit_tests.sh`. If you run pytest directly (`pytest
+plugin/test/test_x.py`) or use your IDE's built-in test runner, you may encounter the same error. You can avoid hyphens in your local clone's directory with a rename (e.g. use `appeears_qgis_plugin` instead of `AppEEARS-QGIS-Plugin`) if you plan to run tests this way.
 
 Coverage HTML files are written, and can be viewed in a browser at:
 
