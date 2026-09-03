@@ -4,11 +4,13 @@ This document details aspects of development for maintainers of the project.
 
 ## Project Structure
 
-- `__init__.py` - Entry point that QGIS uses for the plugin.
-- `plugin` - Contains the source for the app; it is a Python package.
-  - `test` - Contains all unit tests.
-- `assets` - Contains all assets used by the app, including it's icon file.
-- `i18n` - Used for any translations.
+- `AppEEARS` - The actual installable QGIS plugin; this whole folder is what gets copied/symlinked into a QGIS plugins directory or packaged into a release zip.
+  - `__init__.py` - Entry point that QGIS uses for the plugin.
+  - `metadata.txt` - Plugin metadata read by QGIS's plugin manager.
+  - `plugin` - Contains the source for the app; it is a Python package.
+    - `test` - Contains all unit tests.
+  - `assets` - Contains all assets used by the app, including it's icon file.
+  - `i18n` - Used for any translations.
 - `run_unit_tests.sh` - Shell script for executing the unit tests.
 - `doc` - Contains support documentation
 - `.devcontainer` - Files for supporting development via Docker containers with the VSCode IDE.
@@ -16,21 +18,23 @@ This document details aspects of development for maintainers of the project.
 - `LICENSE` - License for the project.
 - `CITATION.cff` - [Human and machine readable](https://citation-file-format.github.io/) citation information.
 
-More on QGIS Python plugin structure can be found on [this page](https://docs.qgis.org/3.40/en/docs/pyqgis_developer_cookbook/plugins/plugins.html).
+Everything outside `AppEEARS/` is project/development tooling, not part of the plugin itself.
+
+More on QGIS Python plugin structure can be found on [this page](https://docs.qgis.org/3.44/en/docs/pyqgis_developer_cookbook/plugins/plugins.html).
 
 ## Installation
 
-The plugin project directory must be present in the plugins directory of your QGIS install.
+The `AppEEARS` folder itself (not the repo root) must be present in the plugins directory of your QGIS install. QGIS looks for `metadata.txt` directly inside the plugin directory it's given.
 
 On MacOS, it should be under your user directory at `~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins`.
 
-If your project code is stored in a different directory, you can create a symlink there.  For example:
+If your project code is stored in a different directory, you can create a symlink there, pointing at the `AppEEARS` subfolder of your clone. For example:
 
 ```bash
 $ ~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins
 $ ls -laht
 ...
-lrwxr-xr-x   1 jckoch  346589396    39B Feb 18 11:30 appeears_qgis_plugin -> /Users/jckoch/dev/appeears_qgis_plugin/
+lrwxr-xr-x   1 jckoch  346589396    39B Feb 18 11:30 AppEEARS -> /Users/jckoch/dev/appeears_qgis_plugin/AppEEARS/
 ...
 ```
 
@@ -139,35 +143,39 @@ plugin/util.py                  12      0   100%
 TOTAL                          865    138    84%
 ```
 
-### A note on the repo's directory name
-
-`run_unit_tests.sh` invokes pytest with `--pyargs plugin.test` rather than a plain file path. This is
-deliberate: pytest normally resolves test files by walking the directory tree up from the test file,
-and since this project's root `__init__.py` (required by QGIS) sits at the top of that walk, pytest
-needs to turn the repo's folder name into a valid Python identifier. If your local clone is named with
-hyphens, e.g. the default `AppEEARS-QGIS-Plugin` from `git clone`, that fails with a confusing
-`ImportError: attempted relative import with no known parent package` pointing at the plugin's entry
-point. `--pyargs` sidesteps this for the script's own invocation by importing tests as a dotted module
-path (`plugin.test...`) instead of a filesystem path.
-
-This only covers invocations through `run_unit_tests.sh`. If you run pytest directly (`pytest
-plugin/test/test_x.py`) or use your IDE's built-in test runner, you may encounter the same error. You can avoid hyphens in your local clone's directory with a rename (e.g. use `appeears_qgis_plugin` instead of `AppEEARS-QGIS-Plugin`) if you plan to run tests this way.
-
 Coverage HTML files are written, and can be viewed in a browser at:
 
-`file://{abspath_to_project_root}/cover/index.html`
+`file://{abspath_to_project_root}/AppEEARS/cover/index.html`
 
 e.g.
-`file:///Users/jckoch/dev/appeears_qgis_plugin/cover/index.html`
+`file:///Users/jckoch/dev/appeears_qgis_plugin/AppEEARS/cover/index.html`
 
 <img
   src="assets/coverage-index-example.png"
   alt="Coverage Index Report Example"
 />
 
-You can also manually set an env var that represents the absolute path to the Python binary, then leverage it with `pytest` as necessary.
+You can also manually set an env var that represents the absolute path to the Python binary, then leverage it with `pytest` as necessary. Run this from inside the `AppEEARS` folder, since that's where `plugin/` actually lives:
 
 ```bash
+$ cd AppEEARS
 $ tgt_python=/Applications/QGIS.app/Contents/MacOS/bin/python3.9
 $ $tgt_python -m coverage run -m pytest -v plugin/test/test_plugin.py --tb=long --disable-pytest-warnings
 ```
+
+## Releasing
+
+Until packaging/publishing is automated, building the release zip is a manual step. From the repo root, after tagging the release commit:
+
+```bash
+TREE=$(git rev-parse HEAD^{tree})
+NEWTREE=$( { git ls-tree "$TREE:AppEEARS"; \
+  printf '100644 blob %s\tLICENSE\n' "$(git rev-parse HEAD:LICENSE)"; \
+  printf '100644 blob %s\tREADME.md\n' "$(git rev-parse HEAD:README.md)"; \
+} | git mktree )
+git archive --format=zip --prefix=AppEEARS/ "$NEWTREE" > AppEEARS.zip
+```
+
+This packages everything under `AppEEARS/` (tests excluded automatically via `AppEEARS/.gitattributes`) and merges in the repo root's `LICENSE` and `README.md` at the top of the plugin folder, which QGIS's plugin repository requires. It's implemented with `git` plumbing rather than `--prefix` plus a flat file list (an earlier version of this command double-nested `AppEEARS/AppEEARS/...`, since the source paths already started with `AppEEARS/`) or a filesystem copy step, so it doesn't depend on external tools like `zip`/`tar` being installed, and never touches your working tree.
+
+Attach the resulting `AppEEARS.zip` to the GitHub Release for that tag; this is the file linked from the user guide's install instructions. Before publishing, sanity-check it by installing it into a fresh QGIS profile via `Install from ZIP` (see the user guide's verification steps) to confirm nothing needed at runtime was left out of the archive.
