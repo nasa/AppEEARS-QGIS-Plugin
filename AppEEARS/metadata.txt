@@ -27,6 +27,7 @@ tags=AppEEARS, remote sensing, MODIS, Landsat, HLS, ECOSTRESS, LPDAAC, NASA
 icon=assets/icon.png
 experimental=False
 hasProcessingProvider=no
+plugin_dependencies=requests
 
 
 
