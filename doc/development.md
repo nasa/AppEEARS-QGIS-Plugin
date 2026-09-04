@@ -34,7 +34,7 @@ If your project code is stored in a different directory, you can create a symlin
 $ ~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins
 $ ls -laht
 ...
-lrwxr-xr-x   1 jckoch  346589396    39B Feb 18 11:30 AppEEARS -> /Users/jckoch/dev/appeears_qgis_plugin/AppEEARS/
+AppEEARS -> /Users/jckoch/dev/appeears_qgis_plugin/AppEEARS/
 ...
 ```
 
@@ -148,7 +148,7 @@ Coverage HTML files are written, and can be viewed in a browser at:
 `file://{abspath_to_project_root}/AppEEARS/cover/index.html`
 
 e.g.
-`file:///Users/jckoch/dev/appeears_qgis_plugin/AppEEARS/cover/index.html`
+`file:///Users/<username>/dev/appeears_qgis_plugin/AppEEARS/cover/index.html`
 
 <img
   src="assets/coverage-index-example.png"
