@@ -2,6 +2,8 @@ import requests
 from datetime import datetime, timezone
 from typing import Optional, Union
 
+# A standard timeout in seconds used for various HTTP calls the client
+# makes.
 DEFAULT_TIMEOUT = 30
 
 
