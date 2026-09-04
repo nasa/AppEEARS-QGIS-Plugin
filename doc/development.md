@@ -34,7 +34,7 @@ If your project code is stored in a different directory, you can create a symlin
 $ ~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins
 $ ls -laht
 ...
-AppEEARS -> /Users/jckoch/dev/appeears_qgis_plugin/AppEEARS/
+AppEEARS -> /Users/<username>/dev/appeears_qgis_plugin/AppEEARS/
 ...
 ```
 
