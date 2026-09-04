@@ -13,8 +13,8 @@ Until the plugin is available from the official [QGIS Plugin List](https://plugi
 2. In QGIS, go to `Plugins` > `Manage and Install Plugins...` > `Install from ZIP`, browse to the `AppEEARS.zip` you just downloaded, and click `Install Plugin`.
 
 <img
-  src="assets/plugin-extract.png"
-  alt="Extracting to QGIS Plugin Directory"
+  src="assets/plugin-add.png"
+  alt="Installing the Plugin from ZIP"
   width="750"
 />
 
@@ -88,7 +88,7 @@ If you're actively developing the plugin rather than just using it, see the [dev
 
 ## Development
 
-Aspects relevant to maintainers for development purposes can be found in [this document](doc/development.md).
+Aspects relevant to maintainers for development purposes can be found in [this document](development.md).
 
 ## Contact Info
 
