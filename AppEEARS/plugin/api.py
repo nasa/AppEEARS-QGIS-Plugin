@@ -2,6 +2,8 @@ import requests
 from datetime import datetime, timezone
 from typing import Optional, Union
 
+DEFAULT_TIMEOUT = 30
+
 
 class ApiError(Exception):
     """
@@ -40,7 +42,9 @@ class Client:
         if self._token is None or (
             self._token is not None and self._token_exp < datetime.now(tz=timezone.utc)
         ):
-            response = requests.post(f"{self._url}login", auth=self._creds)
+            response = requests.post(
+                f"{self._url}login", auth=self._creds, timeout=DEFAULT_TIMEOUT
+            )
             if response.status_code == 200:
                 data = response.json()
                 if not (token := data["token"]):
@@ -83,7 +87,8 @@ class Client:
             while True:
                 response = requests.get(
                     f'{self._url}task?limit={limit}&offset={offset}',
-                    headers=self._get_auth_header()
+                    headers=self._get_auth_header(),
+                    timeout=DEFAULT_TIMEOUT
                 )
                 if response.status_code == 200:
                     tasks = response.json()
@@ -110,7 +115,8 @@ class Client:
         """
         try:
             response = requests.get(
-                f'{self._url}bundle/{task_id}', headers=self._get_auth_header()
+                f'{self._url}bundle/{task_id}', headers=self._get_auth_header(),
+                timeout=DEFAULT_TIMEOUT
             )
             if response.status_code == 200:
                 return response.json()['files']
