@@ -4,7 +4,7 @@
 name=AppEEARS
 qgisMinimumVersion=3.44
 description=AppEEARS plugin allows users to load AppEEARS cloud-optimized geotiff outputs directly into QGIS.
-version=1.0.0
+version=1.0.1
 author=NASA Earthdata LPDAAC
 email=lpdaac@usgs.gov
 
@@ -20,6 +20,9 @@ repository=https://github.com/nasa/AppEEARS-QGIS-Plugin
 # Recommended items:
 
 changelog =
+    1.0.1
+        - Improved installation process and instructions
+
     1.0.0
         - initial release
 
