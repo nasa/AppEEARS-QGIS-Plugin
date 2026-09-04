@@ -380,7 +380,7 @@ class DialogTest(unittest.TestCase):
         mock_retrieve_creds.assert_called_with(expected_machine)
         expected_api_client.fetch_task_data.assert_called_with()
         mock_open_messagebox.assert_called_with(*expected_mb_args)
-        mock_filter_tasks.not_called()
+        mock_filter_tasks.assert_not_called()
         mock_populate_table.assert_not_called()
 
     @patch(f'{MODULE_PATH}.QtWidgets.QTableWidgetItem')

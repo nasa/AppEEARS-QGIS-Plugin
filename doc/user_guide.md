@@ -6,11 +6,11 @@ This document details how to install and get started using the [AppEEARS QGIS Pl
 
 ## Installing the Plugin
 
-Until the plugin is available from the official [QGIS Plugin List](https://plugins.qgis.org/plugins/), you can install it from source. Follow these steps:
+Until the plugin is available from the official [QGIS Plugin List](https://plugins.qgis.org/plugins/), you can install it using QGIS's built-in "Install from ZIP" feature. Follow these steps:
 
-1. Make sure QGIS is closed and navigate to your QGIS plugin directory. This is usually located at `C:\Users\<username>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins` on Windows. The `AppData` directory is hidden by default, so you may have to show hidden files when viewing `C:\Users\<username>` in the file explorer.
+1. Download the `AppEEARS.zip` asset from the latest [release](https://github.com/nasa/AppEEARS-QGIS-Plugin/releases).
 
-2. Clone this repository to the `plugins` directory or download to the `plugins` directory then unzip using extract all. 
+2. In QGIS, go to `Plugins` > `Manage and Install Plugins...` > `Install from ZIP`, browse to the `AppEEARS.zip` you just downloaded, and click `Install Plugin`.
 
 <img
   src="assets/plugin-extract.png"
@@ -18,7 +18,7 @@ Until the plugin is available from the official [QGIS Plugin List](https://plugi
   width="750"
 />
 
-3. Launch QGIS, then add the plugin going to `Plugins` > `Manage and Install Plugins...` > `Installed` and ensuring the box beside AppEEARS is checked.
+3. Confirm it's enabled under `Plugins` > `Manage and Install Plugins...` > `Installed`; the box beside AppEEARS should be checked.
 
 <img
   src="assets/manage-plugins-window.png"
@@ -34,9 +34,11 @@ Until the plugin is available from the official [QGIS Plugin List](https://plugi
   width="750"
 />
 
+If you're actively developing the plugin rather than just using it, see the [development guide](development.md) instead. It covers symlinking the `AppEEARS` folder directly into your QGIS profile, so your edits are the live source instead of a zip you'd need to rebuild and reinstall; using the [Plugin Reloader](https://plugins.qgis.org/plugins/plugin_reloader/) tool from there lets QGIS pick up those edits with a single click instead of a restart.
+
 ## Using the Plugin
 
-1. Submit an area sample request to [AppEEARS](https://appeears.earthdatacloud.nasa.gov/) with cloud-optimized geotiff format selected for the outputs. We've included an example area request, `qgis-plugin-example-request.json` in the `appeears_qgis_plugin/assets` directory that can be uploaded and submitted on the [Extract Area Sample Page](https://appeears.earthdatacloud.nasa.gov/task/area). See the [AppEEARS documentation](https://appeears.earthdatacloud.nasa.gov/help) for more information on how to do this.
+1. Submit an area sample request to [AppEEARS](https://appeears.earthdatacloud.nasa.gov/) with cloud-optimized geotiff format selected for the outputs. We've included an example area request, `qgis-plugin-example-request.json`, in the plugin's `assets` directory (`AppEEARS/assets` inside your QGIS plugins folder) that can be uploaded and submitted on the [Extract Area Sample Page](https://appeears.earthdatacloud.nasa.gov/task/area). See the [AppEEARS documentation](https://appeears.earthdatacloud.nasa.gov/help) for more information on how to do this.
 
 <img
   src="assets/upload-appeears-request.png"
