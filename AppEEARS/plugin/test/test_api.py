@@ -36,7 +36,9 @@ class ClientTest(unittest.TestCase):
         expected_login_url = f'{actual_client._url}login'
         actual_client._handle_token()
 
-        mock_post.assert_called_with(expected_login_url, auth=expected_creds)
+        mock_post.assert_called_with(
+            expected_login_url, auth=expected_creds, timeout=api.DEFAULT_TIMEOUT
+        )
         self.assertEqual(actual_client._token, expected_token)
         self.assertEqual(actual_client._token_exp, expected_token_exp)
 
@@ -117,7 +119,7 @@ class ClientTest(unittest.TestCase):
         mock_get_auth_header.assert_called_with()
         mock_get.assert_called_with(
             f'{actual_client._url}task?limit=1000&offset=0',
-            headers=expected_auth_hdr
+            headers=expected_auth_hdr, timeout=api.DEFAULT_TIMEOUT
         )
         expected_resp_1.json.assert_called_with()
         self.assertEqual(len(actual_tasks), expected_max)
@@ -144,11 +146,11 @@ class ClientTest(unittest.TestCase):
         mock_get_auth_header.assert_called_with()
         mock_get.call_args_list[0].assert_called_with(
             f'{actual_client._url}task?limit={expected_limit}&offset=0',
-            headers=expected_auth_hdr
+            headers=expected_auth_hdr, timeout=api.DEFAULT_TIMEOUT
         )
         mock_get.call_args_list[1].assert_called_with(
             f'{actual_client._url}task?limit={expected_limit}&offset=1',
-            headers=expected_auth_hdr
+            headers=expected_auth_hdr, timeout=api.DEFAULT_TIMEOUT
         )
         expected_resp_1.json.assert_called_with()
         expected_resp_2.json.assert_called_with()
@@ -203,7 +205,7 @@ class ClientTest(unittest.TestCase):
 
         mock_get.assert_called_with(
             f'{actual_client._url}bundle/{expected_task_id}',
-            headers=expected_auth_hdr
+            headers=expected_auth_hdr, timeout=api.DEFAULT_TIMEOUT
         )
         self.assertEqual(actual_data, expected_files)
 
@@ -222,7 +224,7 @@ class ClientTest(unittest.TestCase):
 
         mock_get.assert_called_with(
             f'{actual_client._url}bundle/{expected_task_id}',
-            headers=expected_auth_hdr
+            headers=expected_auth_hdr, timeout=api.DEFAULT_TIMEOUT
         )
         self.assertIsNone(actual_data)
 
@@ -255,7 +257,7 @@ class ClientTest(unittest.TestCase):
 
         mock_get.assert_called_with(
             f'{actual_client._url}bundle/{expected_task_id}',
-            headers=expected_auth_hdr
+            headers=expected_auth_hdr, timeout=api.DEFAULT_TIMEOUT
         )
         self.assertEqual(str(ex_context.exception), str(expected_ex))
 
